@@ -10,7 +10,6 @@ $(document).ready(function(){
 	eltree(t1,originalColList)
 	id=0;
 	eltree(t2,fakeColList)
-	//console.log(originalColList);
 	function eltree(el, colList){
 		if(el.children().length == 0 ){
 			var col = {}
@@ -54,18 +53,7 @@ $(document).ready(function(){
 			}
 		}
 	}
-	
-	var generateButton = $("<button>Generate</button>");
-	var htmlQualifierfield = $("<input id='htmlQualifier'></input>");
-	htmlQualifierfield.val('test.')
-	var myDiv = $("<div class='i18n' style='height:300px;position:fixed;overflow:scroll;background-color:white;z-index:900;'></div>")
-	var myBackgroundDiv = $("<div class='i18nbk' style='height:300px;'></div>")
-	$("body").prepend(myBackgroundDiv);
-	$("body").prepend(myDiv);
-	
-	generateButton.click(handleGenerate);
-	myDiv.append(generateButton);
-	myDiv.append(htmlQualifierfield);
+
 	
 	function handleGenerate(){
 		var uniqueProperties = {};
@@ -83,27 +71,35 @@ $(document).ready(function(){
 		
 		console.log(t2.html().replace(/&gt;/g,'>').replace(/&lt;/g,"<"));
 	}
-	for( var index in originalColList){
-		var col = originalColList[index]
-		var fieldDiv = $("<div style='float:left;padding:8px;'></div>");
-		var originalText=$("<p'></p>");
-		originalText.text( col.text);
-		
-		
-		var generatedText=$("<input></input>");
-		generatedText.attr('id',col.id);
-		generatedText.attr('value',qualifier); //TODO:get it dynamically
-		generatedText.keyup(handleUpdate);
-		generatedText.focus(handleFocus);
-		generatedText.blur(hanldeBlur);
-		
-		
-		fieldDiv.append(originalText);
-		fieldDiv.append(generatedText);
-		myDiv.append(fieldDiv)
-		
-		
-	}
+    
+    function generateEditor(){
+        var generateButton = $("<button>Generate</button>");
+        var htmlQualifierfield = $("<input id='htmlQualifier'></input>");
+        htmlQualifierfield.val('test.')
+        var myDiv = $("<div class='i18n' style='height:300px;position:fixed;overflow:scroll;background-color:white;z-index:900;'></div>")
+        var myBackgroundDiv = $("<div class='i18nbk' style='height:300px;'></div>")
+        $("body").prepend(myBackgroundDiv);
+        $("body").prepend(myDiv);
+        generateButton.click(handleGenerate);
+        myDiv.append(generateButton);
+        myDiv.append(htmlQualifierfield);
+        for( var index in originalColList){
+            var col = originalColList[index]
+            var fieldDiv = $("<div style='float:left;padding:8px;'></div>");
+            var originalText=$("<p'></p>");
+            originalText.text( col.text);
+            var generatedText=$("<input></input>");
+            generatedText.attr('id',col.id);
+            generatedText.attr('value',qualifier); //TODO:get it dynamically
+            generatedText.keyup(handleUpdate);
+            generatedText.focus(handleFocus);
+            generatedText.blur(hanldeBlur);
+            fieldDiv.append(originalText);
+            fieldDiv.append(generatedText);
+            myDiv.append(fieldDiv) 
+        }
+    }
+    
 	function handleFocus(){
 		var id = $(this).attr('id')
 		var col = getCol(id);
@@ -190,5 +186,26 @@ $(document).ready(function(){
 				return col
 		}
 	}
-	
+    function generateJinjaTemplate(){
+        for(var i in fakeColList){
+			var col = fakeColList[i]
+			if(col.textNode){
+                var tempTextNode = document.createTextNode("{% trans %}" + col.obj.text() + "{% endtrans %}");
+                col.obj.replaceWith(tempTextNode);
+                col.obj = $(tempTextNode)
+             }else{
+                col.obj.text("{% trans %}" + col.obj.text() + "{% endtrans %}");
+             }
+		}
+        console.log(t2.html().replace(/&gt;/g,'>').replace(/&lt;/g,"<"));
+    }
+    /**
+    * Uncommnet following line if you want to generate jinja template file
+    **/
+	//generateJinjaTemplate()
+    
+    /**
+    * Uncomment follwing line if you want to generate your own properity file
+    **/
+    generateEditor()
 });
